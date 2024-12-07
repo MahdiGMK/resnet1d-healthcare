@@ -20,12 +20,12 @@ import torch.optim as optim
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 from tensorboardX import SummaryWriter
-from torchsummaryX import summary
+from torchinfo import summary
 
 if __name__ == "__main__":
 
     is_debug = False
-    
+
     batch_size = 128
     if is_debug:
         writer = SummaryWriter('/nethome/shong375/log/crnn1d/challenge2017/debug')
@@ -40,18 +40,18 @@ if __name__ == "__main__":
     dataset_test = MyDataset(X_test, Y_test)
     dataloader = DataLoader(dataset, batch_size=batch_size)
     dataloader_test = DataLoader(dataset_test, batch_size=batch_size, drop_last=False)
-    
+
     # make model
     device_str = "cuda"
     device = torch.device(device_str if torch.cuda.is_available() else "cpu")
     model = CRNN(
-        in_channels=1, 
-        out_channels=16, 
-        n_len_seg=50, 
+        in_channels=1,
+        out_channels=16,
+        n_len_seg=50,
         verbose=False,
         n_classes=2,
         device=device)
-    
+
     summary(model, torch.zeros(1, 1, 3000))
 
     model.to(device)
@@ -83,9 +83,9 @@ if __name__ == "__main__":
 
             if is_debug:
                 break
-        
+
         scheduler.step(_)
-                    
+
         # test
         model.eval()
         prog_iter_test = tqdm(dataloader_test, desc="Testing", leave=False)

@@ -1,8 +1,8 @@
 """
 test on physionet data
 
-The search stratagy is based on: 
-Radosavovic, I., Kosaraju, R. P., Girshick, R., He, K., & Dollár, P. (2020). 
+The search stratagy is based on:
+Radosavovic, I., Kosaraju, R. P., Girshick, R., He, K., & Dollár, P. (2020).
 Designing Network Design Spaces. Retrieved from http://arxiv.org/abs/2003.13678
 
 Shenda Hong, Apr 2020
@@ -23,7 +23,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from tensorboardX import SummaryWriter
-from torchsummary import summary
+from torchinfo import summary
 
 def run_exp(base_filters, filter_list, m_blocks_list):
 
@@ -33,21 +33,21 @@ def run_exp(base_filters, filter_list, m_blocks_list):
     dataloader = DataLoader(dataset, batch_size=batch_size)
     dataloader_val = DataLoader(dataset_val, batch_size=batch_size, drop_last=False)
     dataloader_test = DataLoader(dataset_test, batch_size=batch_size, drop_last=False)
-    
+
     # make model
     device_str = "cuda"
     device = torch.device(device_str if torch.cuda.is_available() else "cpu")
 
     model = Net1D(
-        in_channels=1, 
-        base_filters=base_filters, 
-        ratio=1.0, 
-        filter_list=filter_list, 
-        m_blocks_list=m_blocks_list, 
-        kernel_size=16, 
-        stride=2, 
+        in_channels=1,
+        base_filters=base_filters,
+        ratio=1.0,
+        filter_list=filter_list,
+        m_blocks_list=m_blocks_list,
+        kernel_size=16,
+        stride=2,
         groups_width=16,
-        verbose=False, 
+        verbose=False,
         n_classes=4)
     model.to(device)
 
@@ -79,9 +79,9 @@ def run_exp(base_filters, filter_list, m_blocks_list):
 
             if is_debug:
                 break
-        
+
         scheduler.step(_)
-                    
+
         # val
         model.eval()
         prog_iter_val = tqdm(dataloader_val, desc="Validation", leave=False)
@@ -110,7 +110,7 @@ def run_exp(base_filters, filter_list, m_blocks_list):
         writer.add_scalar('F1/label_1', tmp_report['1']['f1-score'], _)
         writer.add_scalar('F1/label_2', tmp_report['2']['f1-score'], _)
         writer.add_scalar('F1/label_3', tmp_report['3']['f1-score'], _)
-                    
+
         # test
         model.eval()
         prog_iter_test = tqdm(dataloader_test, desc="Testing", leave=False)

@@ -1,13 +1,13 @@
 """
 train and test resnet1d on synthetic data, using ray
 
-Usage: 
+Usage:
     (1) Install Ray:
         pip install ray --user
     (2) Run test on synthetic data
         python test_ray.py
 
-    for the usage of Ray for PyTorch, please refer to: 
+    for the usage of Ray for PyTorch, please refer to:
     https://ray.readthedocs.io/en/latest/using-ray-with-pytorch.html
 
 Shenda Hong, Dec 2019
@@ -17,7 +17,7 @@ import numpy as np
 from collections import Counter
 from tqdm import tqdm
 from matplotlib import pyplot as plt
-from sklearn.metrics import classification_report 
+from sklearn.metrics import classification_report
 
 from util import read_data_generated
 from resnet1d import ResNet1D, MyDataset
@@ -27,12 +27,12 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
-from torchsummary import summary
+from torchinfo import summary
 
-import ray
+# import ray
 
 def train(model, device, train_loader, optimizer):
-    
+
     loss_func = torch.nn.CrossEntropyLoss()
     all_loss = []
     prog_iter = tqdm(train_loader, desc="Training", leave=False)
@@ -45,9 +45,9 @@ def train(model, device, train_loader, optimizer):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        
+
         all_loss.append(loss.item())
-    
+
 def test(model, device, test_loader, label_test):
 
     prog_iter_test = tqdm(test_loader, desc="Testing", leave=False)
@@ -70,7 +70,7 @@ class Network(object):
             kernel_size: size of convolutional filters [2, 4, 8, 16]
             n_block: depth of model (depth) [2, 4, 8, 16]
 
-        
+
         """
         use_cuda = torch.cuda.is_available()
 
@@ -89,7 +89,7 @@ class Network(object):
         print(data_test.shape, Counter(label_test))
         dataset_test = MyDataset(data_test, label_test)
         dataloader_test = DataLoader(dataset_test, batch_size=batch_size, drop_last=False)
-        
+
         self.device = device = torch.device("cuda" if use_cuda else "cpu")
         self.train_loader, self.test_loader = dataloader, dataloader_test
 
@@ -98,15 +98,15 @@ class Network(object):
         # 34 layer (16*2+2): 16, 2, 4
         # 98 layer (48*2+2): 48, 6, 12
         self.model = ResNet1D(
-                    in_channels=n_channel, 
-                    base_filters=base_filters, 
-                    kernel_size=kernel_size, 
-                    stride=2, 
-                    n_block=n_block, 
+                    in_channels=n_channel,
+                    base_filters=base_filters,
+                    kernel_size=kernel_size,
+                    stride=2,
+                    n_block=n_block,
                     groups=base_filters,
-                    n_classes=n_classes, 
-                    downsample_gap=max(n_block//8, 1), 
-                    increasefilter_gap=max(n_block//4, 1), 
+                    n_classes=n_classes,
+                    downsample_gap=max(n_block//8, 1),
+                    increasefilter_gap=max(n_block//4, 1),
                     verbose=False).to(device)
         self.optimizer = optim.Adam(self.model.parameters(), lr=1e-3)
 
@@ -137,30 +137,30 @@ if __name__ == "__main__":
 
     # ECG
     net = Network(
-        n_length=3750, 
-        base_filters=64, 
-        kernel_size=16, 
-        n_block=16, 
+        n_length=3750,
+        base_filters=64,
+        kernel_size=16,
+        n_block=16,
         n_channel=1)
     net.model.to(device)
     net.test()
 
     # vital
     net = Network(
-        n_length=300, 
-        base_filters=64, 
-        kernel_size=16, 
-        n_block=8, 
+        n_length=300,
+        base_filters=64,
+        kernel_size=16,
+        n_block=8,
         n_channel=5)
     net.model.to(device)
     net.test()
 
     # lab
     net = Network(
-        n_length=48, 
-        base_filters=64, 
-        kernel_size=4, 
-        n_block=4, 
+        n_length=48,
+        base_filters=64,
+        kernel_size=4,
+        n_block=4,
         n_channel=13)
     net.model.to(device)
     net.test()
@@ -187,6 +187,3 @@ if __name__ == "__main__":
     #     for actor in [NetworkActor, NetworkActor2]
     # ]
     # ray.get([actor.train.remote() for actor in [NetworkActor, NetworkActor2]])
-
-
-

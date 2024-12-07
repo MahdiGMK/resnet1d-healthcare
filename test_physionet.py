@@ -19,12 +19,12 @@ import torch.optim as optim
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 from tensorboardX import SummaryWriter
-from torchsummary import summary
+from torchinfo import summary
 
 if __name__ == "__main__":
 
     is_debug = False
-    
+
     batch_size = 32
     if is_debug:
         writer = SummaryWriter('/nethome/shong375/log/resnet1d/challenge2017/debug')
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     dataset_test = MyDataset(X_test, Y_test)
     dataloader = DataLoader(dataset, batch_size=batch_size)
     dataloader_test = DataLoader(dataset_test, batch_size=batch_size, drop_last=False)
-    
+
     # make model
     device_str = "cuda"
     device = torch.device(device_str if torch.cuda.is_available() else "cpu")
@@ -49,15 +49,15 @@ if __name__ == "__main__":
     downsample_gap = 6
     increasefilter_gap = 12
     model = ResNet1D(
-        in_channels=1, 
+        in_channels=1,
         base_filters=128, # 64 for ResNet1D, 352 for ResNeXt1D
-        kernel_size=kernel_size, 
-        stride=stride, 
-        groups=32, 
-        n_block=n_block, 
-        n_classes=4, 
-        downsample_gap=downsample_gap, 
-        increasefilter_gap=increasefilter_gap, 
+        kernel_size=kernel_size,
+        stride=stride,
+        groups=32,
+        n_block=n_block,
+        n_classes=4,
+        downsample_gap=downsample_gap,
+        increasefilter_gap=increasefilter_gap,
         use_do=True)
     model.to(device)
 
@@ -91,9 +91,9 @@ if __name__ == "__main__":
 
             if is_debug:
                 break
-        
+
         scheduler.step(_)
-                    
+
         # test
         model.eval()
         prog_iter_test = tqdm(dataloader_test, desc="Testing", leave=False)

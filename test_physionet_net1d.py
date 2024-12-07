@@ -19,12 +19,12 @@ import torch.optim as optim
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from tensorboardX import SummaryWriter
-from torchsummary import summary
+from torchinfo import summary
 
 if __name__ == "__main__":
 
     is_debug = True
-    
+
     batch_size = 32
     if is_debug:
         writer = SummaryWriter('/nethome/shong375/log/resnet1d/challenge2017/debug')
@@ -40,21 +40,21 @@ if __name__ == "__main__":
     dataset_test = MyDataset(X_test, Y_test)
     dataloader = DataLoader(dataset, batch_size=batch_size)
     dataloader_test = DataLoader(dataset_test, batch_size=batch_size, drop_last=False)
-    
+
     # make model
     device_str = "cuda"
     device = torch.device(device_str if torch.cuda.is_available() else "cpu")
 
     model = Net1D(
-        in_channels=1, 
-        base_filters=256, 
-        ratio=1.0, 
-        filter_mul_list=[1,2,2,4,4,8,8], 
-        m_blocks_list=[2,2,2,2,2,2,2], 
-        kernel_size=16, 
-        stride=2, 
+        in_channels=1,
+        base_filters=256,
+        ratio=1.0,
+        filter_mul_list=[1,2,2,4,4,8,8],
+        m_blocks_list=[2,2,2,2,2,2,2],
+        kernel_size=16,
+        stride=2,
         groups=32,
-        verbose=True, 
+        verbose=True,
         n_classes=4)
     model.to(device)
 
@@ -88,9 +88,9 @@ if __name__ == "__main__":
 
             if is_debug:
                 break
-        
+
         scheduler.step(_)
-                    
+
         # test
         model.eval()
         prog_iter_test = tqdm(dataloader_test, desc="Testing", leave=False)

@@ -7,14 +7,19 @@ from sklearn.model_selection import train_test_split
 from collections import Counter
 from tqdm import tqdm
 
+def preprocess_physionet_ecgdataset():
+    cnames = pd.read_csv('../dataset/ConditionNames_SNOMED-CT.csv')
+    records = pd.read_csv('../dataset/RECORDS')
+
+
 def preprocess_physionet():
     """
-    download the raw data from https://physionet.org/content/challenge-2017/1.0.0/, 
+    download the raw data from https://physionet.org/content/challenge-2017/1.0.0/,
     and put it in ../data/challenge2017/
 
     The preprocessed dataset challenge2017.pkl can also be found at https://drive.google.com/drive/folders/1AuPxvGoyUbKcVaFmeyt3xsqj6ucWZezf
     """
-    
+
     # read label
     label_df = pd.read_csv('../data/challenge2017/REFERENCE-v3.csv', header=None)
     label = label_df.iloc[:,1].values
@@ -111,7 +116,7 @@ def read_data_physionet_2_clean_federated(m_clients, test_ratio=0.2, window_size
 
         # split train test
         X_train, X_test, Y_train, Y_test = train_test_split(tmp_data, tmp_label, test_size=test_ratio, random_state=0)
-        
+
         # slide and cut
         print('before: ')
         print(Counter(Y_train), Counter(Y_test))
@@ -119,7 +124,7 @@ def read_data_physionet_2_clean_federated(m_clients, test_ratio=0.2, window_size
         X_test, Y_test, pid_test = slide_and_cut(X_test, Y_test, window_size=window_size, stride=stride, datatype=2.1, output_pid=True)
         print('after: ')
         print(Counter(Y_train), Counter(Y_test))
-        
+
         # shuffle train
         shuffle_pid = np.random.permutation(Y_train.shape[0])
         X_train = X_train[shuffle_pid]
@@ -163,7 +168,7 @@ def read_data_physionet_2_clean(window_size=3000, stride=500):
 
     # split train test
     X_train, X_test, Y_train, Y_test = train_test_split(all_data, all_label, test_size=0.1, random_state=0)
-    
+
     # slide and cut
     print('before: ')
     print(Counter(Y_train), Counter(Y_test))
@@ -171,7 +176,7 @@ def read_data_physionet_2_clean(window_size=3000, stride=500):
     X_test, Y_test, pid_test = slide_and_cut(X_test, Y_test, window_size=window_size, stride=stride, datatype=2.1, output_pid=True)
     print('after: ')
     print(Counter(Y_train), Counter(Y_test))
-    
+
     # shuffle train
     shuffle_pid = np.random.permutation(Y_train.shape[0])
     X_train = X_train[shuffle_pid]
@@ -206,7 +211,7 @@ def read_data_physionet_2(window_size=3000, stride=500):
 
     # split train test
     X_train, X_test, Y_train, Y_test = train_test_split(all_data, all_label, test_size=0.1, random_state=0)
-    
+
     # slide and cut
     print('before: ')
     print(Counter(Y_train), Counter(Y_test))
@@ -214,7 +219,7 @@ def read_data_physionet_2(window_size=3000, stride=500):
     X_test, Y_test, pid_test = slide_and_cut(X_test, Y_test, window_size=window_size, stride=stride, n_class=2, output_pid=True)
     print('after: ')
     print(Counter(Y_train), Counter(Y_test))
-    
+
     # shuffle train
     shuffle_pid = np.random.permutation(Y_train.shape[0])
     X_train = X_train[shuffle_pid]
@@ -252,7 +257,7 @@ def read_data_physionet_4(window_size=3000, stride=500):
 
     # split train test
     X_train, X_test, Y_train, Y_test = train_test_split(all_data, all_label, test_size=0.1, random_state=0)
-    
+
     # slide and cut
     print('before: ')
     print(Counter(Y_train), Counter(Y_test))
@@ -260,7 +265,7 @@ def read_data_physionet_4(window_size=3000, stride=500):
     X_test, Y_test, pid_test = slide_and_cut(X_test, Y_test, window_size=window_size, stride=stride, output_pid=True)
     print('after: ')
     print(Counter(Y_train), Counter(Y_test))
-    
+
     # shuffle train
     shuffle_pid = np.random.permutation(Y_train.shape[0])
     X_train = X_train[shuffle_pid]
@@ -299,7 +304,7 @@ def read_data_physionet_4_with_val(window_size=3000, stride=500):
     # split train val test
     X_train, X_test, Y_train, Y_test = train_test_split(all_data, all_label, test_size=0.2, random_state=0)
     X_val, X_test, Y_val, Y_test = train_test_split(X_test, Y_test, test_size=0.5, random_state=0)
-    
+
     # slide and cut
     print('before: ')
     print(Counter(Y_train), Counter(Y_val), Counter(Y_test))
@@ -308,7 +313,7 @@ def read_data_physionet_4_with_val(window_size=3000, stride=500):
     X_test, Y_test, pid_test = slide_and_cut(X_test, Y_test, window_size=window_size, stride=stride, output_pid=True)
     print('after: ')
     print(Counter(Y_train), Counter(Y_val), Counter(Y_test))
-    
+
     # shuffle train
     shuffle_pid = np.random.permutation(Y_train.shape[0])
     X_train = X_train[shuffle_pid]
@@ -324,19 +329,19 @@ def read_data_physionet_4_with_val(window_size=3000, stride=500):
 def read_data_generated(n_samples, n_length, n_channel, n_classes, verbose=False):
     """
     Generated data
-    
-    This generated data contains one noise channel class, plus unlimited number of sine channel classes which are different on frequency. 
-    
-    """    
+
+    This generated data contains one noise channel class, plus unlimited number of sine channel classes which are different on frequency.
+
+    """
     all_X = []
     all_Y = []
-    
+
     # noise channel class
     X_noise = np.random.rand(n_samples, n_channel, n_length)
     Y_noise = np.array([0]*n_samples)
     all_X.append(X_noise)
     all_Y.append(Y_noise)
-    
+
     # sine channel classe
     x = np.arange(n_length)
     for i_class in range(n_classes-1):
@@ -359,14 +364,14 @@ def read_data_generated(n_samples, n_length, n_channel, n_classes, verbose=False
     shuffle_idx = np.random.permutation(all_Y.shape[0])
     all_X = all_X[shuffle_idx]
     all_Y = all_Y[shuffle_idx]
-    
+
     # random pick some and plot
     if verbose:
         for _ in np.random.permutation(all_Y.shape[0])[:10]:
             fig = plt.figure()
             plt.plot(all_X[_,0,:])
             plt.title('Label: {0}'.format(all_Y[_]))
-    
+
     return all_X, all_Y
 
 
